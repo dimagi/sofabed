@@ -26,9 +26,9 @@ class Command(LabelCommand):
                     return 
                 
                 form = XFormInstance.get(change.id)
-                fd = get_formdata_class().create_or_update_from_xforminstance(form)
-            except Exception:
-                logging.exception("problem in form listener for line: %s" % line)
+                get_formdata_class().create_or_update_from_xforminstance(form)
+            except Exception, e:
+                logging.exception("problem in form listener for line: %s\n%s" % (line, e))
         
         # Go into receive loop waiting for any conflicting patients to
         # come in.
