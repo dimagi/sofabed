@@ -2,7 +2,7 @@ SofaBed lets you "pull out" data from couchforms for reporting (Get it??).
 
 If you want to add properties to forms subclass FormDataBase and add
 
-    FORMDATA_CLASS = 'myapp.Foo'  
+    FORMDATA_MODEL = 'myapp.Foo'  
 
 to your settings.py file.
 
