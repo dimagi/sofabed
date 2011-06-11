@@ -47,11 +47,11 @@ class FormDataBase(models.Model):
         self.instanceID = instance.get_id
         self.timeStart = instance.metadata.timeStart
         self.timeEnd = instance.metadata.timeEnd   
-        self.deviceID = instance.metadata.deviceID
-        self.userID = instance.metadata.userID
-        self.xmlns = instance.xmlns
-        self.version = instance.version
-        self.uiversion = instance.version
+        self.deviceID = instance.metadata.deviceID or ""
+        self.userID = instance.metadata.userID or ""
+        self.xmlns = instance.xmlns or ""
+        self.version = instance.version or ""
+        self.uiversion = instance.uiversion or ""
         self.received_on = instance.received_on
         
     def matches_exact(self, instance):
