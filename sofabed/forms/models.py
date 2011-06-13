@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import *
+from sofabed.forms.exceptions import InvalidMetaBlockException,\
+    InvalidFormUpdateException
 
 class FormDataBase(models.Model):
     """
@@ -34,15 +36,28 @@ class FormDataBase(models.Model):
         Update this object based on an XFormInstance doc
         """
         if not instance.metadata:
-            raise ValueError("Instance didn't have a meta block!")
+            raise InvalidMetaBlockException("Instance %s didn't have a meta block!" % instance.get_id)
         
-        if instance.metadata.instanceID:
+        if instance.metadata.instanceID and instance.metadata.instanceID != instance.get_id:
             # we never want to differentiate between these two ids
-            assert(instance.metadata.instanceID == instance.get_id)
+            raise InvalidMetaBlockException("Instance had doc id (%s) different from meta instanceID (%s)!" %\
+                                            instance.get_id, instance.metadata.instanceID)
         
-        if self.instanceID:
+        if self.instanceID and self.instanceID != instance.get_id:
             # we never allow updates to change the instance ID
-            assert(self.instanceID == instance.get_id)
+            raise InvalidFormUpdateException("Tried to update formdata %s with different instance id %s!" %\
+                                             (self.instanceID, instance.get_id))
+        
+        if not instance.metadata.timeStart or not instance.metadata.timeStart:
+            # we don't allow these fields to be empty
+            raise InvalidFormUpdateException("No timeStart or timeEnd found in instance %s!" %\
+                                             (instance.get_id))
+        
+        if not instance.received_on:
+            # we don't allow this field to be empty
+            raise InvalidFormUpdateException("No received_on date found in instance %s!" %\
+                                             (instance.get_id))
+        
         
         self.instanceID = instance.get_id
         self.timeStart = instance.metadata.timeStart
