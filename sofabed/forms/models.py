@@ -2,7 +2,31 @@ from django.db import models
 from django.contrib.auth.models import *
 from sofabed.forms.exceptions import InvalidMetaBlockException,\
     InvalidFormUpdateException
+from couchdbkit.ext.django.schema import Document, IntegerProperty
 
+class Checkpoint(Document):
+    """
+    Saves the current state of the sync.
+    """
+    seq = IntegerProperty()
+    
+    @classmethod
+    def set_checkpoint(cls, id, seq):
+        if cls.get_db().doc_exist(id):
+            doc = cls.get(id)
+        else:
+            doc = cls()
+            doc._id = id
+        doc.seq = seq
+        doc.save()
+    
+    @classmethod
+    def get_last_checkpoint(cls, id):
+        if cls.get_db().doc_exist(id):
+            return cls.get(id).seq
+        else:
+            return 0
+        
 class FormDataBase(models.Model):
     """
     Data about a form submission.
