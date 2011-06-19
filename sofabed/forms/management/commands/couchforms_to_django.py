@@ -8,6 +8,7 @@ from couchforms.models import XFormInstance
 from sofabed.forms.config import get_formdata_class
 from django.db import transaction
 from sofabed.forms.models import Checkpoint
+from django.db.utils import DatabaseError
 
 FILTER_FORMS_WITH_META = "forms/xforms_with_meta"
 CHECKPOINT_FREQUENCY = 100
@@ -22,6 +23,7 @@ class Command(LabelCommand):
     def handle(self, *args, **options):
         db = get_db()
         c = Consumer(db)
+        
         @transaction.commit_on_success
         def update_from_form(line):
             try:
@@ -40,7 +42,12 @@ class Command(LabelCommand):
                     Checkpoint.set_checkpoint(CHECKPOINT_ID, change.seq)
             
             except Exception, e:
+                
                 logging.exception("problem in form listener for line: %s\n%s" % (line, e))
+                if isinstance(e, DatabaseError):
+                    # we have to do this manually to avoid issues with 
+                    # open transactions
+                    transaction.rollback()
                 
         # Go into receive loop waiting for any conflicting patients to
         # come in.
