@@ -9,6 +9,7 @@ from sofabed.forms.config import get_formdata_class
 from django.db import transaction
 from sofabed.forms.models import Checkpoint
 from django.db.utils import DatabaseError
+from sofabed.forms.exceptions import InvalidFormUpdateException
 
 FILTER_FORMS_WITH_META = "forms/xforms_with_meta"
 CHECKPOINT_FREQUENCY = 100
@@ -41,8 +42,11 @@ class Command(LabelCommand):
                 if sofabed_counter % CHECKPOINT_FREQUENCY == 0:
                     Checkpoint.set_checkpoint(CHECKPOINT_ID, change.seq)
             
+            except InvalidFormUpdateException, e:
+                # this is a less severe class of errors
+                logging.info("bad update in form listener for line: %s\n%s" % (line, e))
+            
             except Exception, e:
-                
                 logging.exception("problem in form listener for line: %s\n%s" % (line, e))
                 if isinstance(e, DatabaseError):
                     # we have to do this manually to avoid issues with 
