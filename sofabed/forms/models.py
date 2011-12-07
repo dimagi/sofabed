@@ -65,7 +65,7 @@ class FormDataBase(models.Model):
         if instance.metadata.instanceID and instance.metadata.instanceID != instance.get_id:
             # we never want to differentiate between these two ids
             raise InvalidMetaBlockException("Instance had doc id (%s) different from meta instanceID (%s)!" %\
-                                            instance.get_id, instance.metadata.instanceID)
+                                            (instance.get_id, instance.metadata.instanceID))
         
         if self.instanceID and self.instanceID != instance.get_id:
             # we never allow updates to change the instance ID
