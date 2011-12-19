@@ -1,6 +1,9 @@
 
-class InvalidMetaBlockException(Exception):
+class InvalidDataException(Exception):
     pass
 
-class InvalidFormUpdateException(Exception):
+class InvalidMetaBlockException(InvalidDataException):
+    pass
+
+class InvalidFormUpdateException(InvalidDataException):
     pass
