@@ -136,3 +136,5 @@ class FormData(FormDataBase):
     """
     
     pass
+
+from . import signals
