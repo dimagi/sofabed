@@ -56,12 +56,17 @@ class Command(LabelCommand):
         # Go into receive loop waiting for any conflicting patients to
         # come in.
         last_checkpoint = Checkpoint.get_last_checkpoint(CHECKPOINT_ID)
-        
         while True:
             try:
-                c.wait(heartbeat=5000, filter=FILTER_FORMS_WITH_META, 
-                       since=last_checkpoint, cb=update_from_form)
-                       
+                kwargs = {
+                    "heartbeat": 5000,
+                    "filter": FILTER_FORMS_WITH_META,
+                    "cb": update_from_form,
+                }
+                if last_checkpoint is not None:
+                    kwargs["since"] = last_checkpoint
+                c.wait(**kwargs)
+
             except Exception, e:
                 time.sleep(10)
                 logging.exception("caught exception in form listener: %s, sleeping and restarting" % e)

@@ -2,13 +2,13 @@ from django.db import models
 from django.contrib.auth.models import *
 from sofabed.forms.exceptions import InvalidMetaBlockException,\
     InvalidFormUpdateException
-from couchdbkit.ext.django.schema import Document, IntegerProperty
+from couchdbkit.ext.django.schema import Document, StringProperty
 
 class Checkpoint(Document):
     """
     Saves the current state of the sync.
     """
-    seq = IntegerProperty()
+    seq = StringProperty()
     
     @classmethod
     def set_checkpoint(cls, id, seq):
@@ -17,7 +17,7 @@ class Checkpoint(Document):
         else:
             doc = cls()
             doc._id = id
-        doc.seq = seq
+        doc.seq = str(seq) # force to string in case it's couchdb (vs bigcouch / cloudant)
         doc.save()
     
     @classmethod
@@ -25,7 +25,7 @@ class Checkpoint(Document):
         if cls.get_db().doc_exist(id):
             return cls.get(id).seq
         else:
-            return 0
+            return None
         
 class FormDataBase(models.Model):
     """
